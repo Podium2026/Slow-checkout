@@ -1,0 +1,38 @@
+{
+  "coffees": [
+    {
+      "id": "0d101e88-a905-4144-8b46-b0eddce6bdf0",
+      "name": "Pink Phantom - Colombia Rose Tea Honey",
+      "greenKg": 43,
+      "addedAt": "2026-04-16T22:54:28.563Z"
+    },
+    {
+      "id": "c90d2b9d-90cf-4fe4-a161-a4b37d0457dc",
+      "name": "Colombia - Blend",
+      "greenKg": 140,
+      "addedAt": "2026-04-16T22:55:56.701Z"
+    }
+  ],
+  "roasts": [
+    {
+      "id": "65749c28-d944-484e-9cdb-06b941d856e3",
+      "coffeeId": "0d101e88-a905-4144-8b46-b0eddce6bdf0",
+      "coffeeName": "Pink Phantom - Colombia Rose Tea Honey",
+      "greenKg": 5,
+      "roastedKg": 4.4,
+      "weightLossPct": 12,
+      "date": "2026-04-16T22:55:37.774Z",
+      "notes": ""
+    },
+    {
+      "id": "7fe65eb0-43bd-4965-88fc-fa6a468b65ca",
+      "coffeeId": "5ca87fc1-4177-4461-bbde-8bc9f8507911",
+      "coffeeName": "Ethiopia Guji Natural",
+      "greenKg": 13.5,
+      "roastedKg": 11.88,
+      "weightLossPct": 12,
+      "date": "2026-04-16T22:53:37.217Z",
+      "notes": ""
+    }
+  ]
+}
