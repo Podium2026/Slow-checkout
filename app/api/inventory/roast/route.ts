@@ -1,26 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
 import { randomUUID } from 'crypto'
-import type { InventoryData, RoastEntry } from '../route'
-
-const DATA_FILE = path.join(process.cwd(), 'data', 'inventory.json')
-
-function readData(): InventoryData {
-  try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))
-  } catch {
-    return { coffees: [], roasts: [] }
-  }
-}
-
-function writeData(data: InventoryData) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2))
-}
+import { readData, writeData } from '@/lib/storage'
+import type { RoastEntry } from '../route'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const data = readData()
+  const data = await readData()
 
   const coffee = data.coffees.find((c) => c.id === body.coffeeId)
   if (!coffee) return NextResponse.json({ error: 'Coffee not found' }, { status: 404 })
@@ -47,7 +32,7 @@ export async function POST(req: NextRequest) {
   }
 
   data.roasts.unshift(entry)
-  writeData(data)
+  await writeData(data)
 
   return NextResponse.json({ entry, updatedCoffee: coffee })
 }
@@ -55,15 +40,14 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
-  const data = readData()
+  const data = await readData()
   const entry = data.roasts.find((r) => r.id === id)
   if (!entry) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  // Restore green stock
   const coffee = data.coffees.find((c) => c.id === entry.coffeeId)
   if (coffee) coffee.greenKg = Math.round((coffee.greenKg + entry.greenKg) * 1000) / 1000
 
   data.roasts = data.roasts.filter((r) => r.id !== id)
-  writeData(data)
+  await writeData(data)
   return NextResponse.json({ ok: true })
 }

@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import { readData, writeData } from '@/lib/storage'
 import { randomUUID } from 'crypto'
-
-const DATA_FILE = path.join(process.cwd(), 'data', 'inventory.json')
 
 export interface Coffee {
   id: string
   name: string
   greenKg: number
+  reorderKg: number
   addedAt: string
 }
 
@@ -23,40 +21,39 @@ export interface RoastEntry {
   notes?: string
 }
 
+export interface StockEvent {
+  id: string
+  coffeeId: string
+  coffeeName: string
+  addKg: number
+  newTotal: number
+  date: string
+}
+
 export interface InventoryData {
   coffees: Coffee[]
   roasts: RoastEntry[]
-}
-
-function readData(): InventoryData {
-  try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))
-  } catch {
-    return { coffees: [], roasts: [] }
-  }
-}
-
-function writeData(data: InventoryData) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2))
+  stockEvents: StockEvent[]
 }
 
 export async function GET() {
-  return NextResponse.json(readData())
+  return NextResponse.json(await readData())
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const data = readData()
+  const data = await readData()
 
   if (body.action === 'add_coffee') {
     const coffee: Coffee = {
       id: randomUUID(),
       name: body.name,
       greenKg: Number(body.greenKg),
+      reorderKg: Number(body.reorderKg ?? 5),
       addedAt: new Date().toISOString(),
     }
     data.coffees.push(coffee)
-    writeData(data)
+    await writeData(data)
     return NextResponse.json({ coffee })
   }
 
@@ -64,21 +61,40 @@ export async function POST(req: NextRequest) {
     const coffee = data.coffees.find((c) => c.id === body.coffeeId)
     if (!coffee) return NextResponse.json({ error: 'Coffee not found' }, { status: 404 })
     coffee.greenKg = Number(body.greenKg)
-    writeData(data)
+    await writeData(data)
     return NextResponse.json({ coffee })
   }
 
   if (body.action === 'add_stock') {
     const coffee = data.coffees.find((c) => c.id === body.coffeeId)
     if (!coffee) return NextResponse.json({ error: 'Coffee not found' }, { status: 404 })
-    coffee.greenKg += Number(body.addKg)
-    writeData(data)
+    const addKg = Number(body.addKg)
+    coffee.greenKg = Math.round((coffee.greenKg + addKg) * 1000) / 1000
+    const event: StockEvent = {
+      id: randomUUID(),
+      coffeeId: coffee.id,
+      coffeeName: coffee.name,
+      addKg,
+      newTotal: coffee.greenKg,
+      date: new Date().toISOString(),
+    }
+    if (!data.stockEvents) data.stockEvents = []
+    data.stockEvents.unshift(event)
+    await writeData(data)
+    return NextResponse.json({ coffee })
+  }
+
+  if (body.action === 'set_reorder') {
+    const coffee = data.coffees.find((c) => c.id === body.coffeeId)
+    if (!coffee) return NextResponse.json({ error: 'Coffee not found' }, { status: 404 })
+    coffee.reorderKg = Number(body.reorderKg)
+    await writeData(data)
     return NextResponse.json({ coffee })
   }
 
   if (body.action === 'delete_coffee') {
     data.coffees = data.coffees.filter((c) => c.id !== body.coffeeId)
-    writeData(data)
+    await writeData(data)
     return NextResponse.json({ ok: true })
   }
 
