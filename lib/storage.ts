@@ -14,7 +14,10 @@ async function upstashGet(): Promise<InventoryData> {
   })
   const json = await res.json()
   if (!json.result) return { ...EMPTY }
-  const data = JSON.parse(json.result) as InventoryData
+  // Parse once; if still a string (double-encoded), parse again
+  let parsed = JSON.parse(json.result)
+  if (typeof parsed === 'string') parsed = JSON.parse(parsed)
+  const data = parsed as InventoryData
   if (!data.stockEvents) data.stockEvents = []
   return data
 }
