@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipping Estimate — SL.OW Wholesale</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      background: #f4f2ec;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* Top bar — matches Orderspace dark header */
+    .topbar {
+      background: #111;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    /* Brand header */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e0ddd6;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    header img { height: 38px; width: auto; }
+    header nav { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+    header nav a { color: inherit; text-decoration: none; margin-left: 24px; }
+    header nav a:hover { color: #1a1a2e; }
+
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 52px 24px 96px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      margin-bottom: 40px;
+    }
+
+    /* Section card */
+    .card {
+      background: #fff;
+      border: 1px solid #e0ddd6;
+      border-radius: 14px;
+      padding: 26px;
+      margin-bottom: 16px;
+    }
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 18px;
+    }
+
+    /* Form fields */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    label { font-size: 0.75rem; color: #888; }
+    input, select {
+      border: 1px solid #e0ddd6;
+      border-radius: 8px;
+      padding: 10px 13px;
+      font-size: 0.875rem;
+      color: #1a1a2e;
+      font-family: inherit;
+      background: #fff;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 13px center;
+      padding-right: 34px;
+      cursor: pointer;
+    }
+    input:focus, select:focus { outline: none; border-color: #25295B; }
+
+    /* Bag counters */
+    .bag-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+    }
+    .bag-row + .bag-row { border-top: 1px solid #f0ede8; }
+    .bag-name { font-size: 0.9rem; }
+    .bag-sub { font-size: 0.75rem; color: #999; margin-top: 3px; }
+    .counter {
+      display: flex;
+      align-items: center;
+      border: 1px solid #e0ddd6;
+      border-radius: 8px;
+      overflow: hidden;
+      user-select: none;
+    }
+    .counter button {
+      width: 38px;
+      height: 38px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      line-height: 1;
+      cursor: pointer;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .counter button:hover { background: #f5f3ee; }
+    .counter .count { width: 44px; text-align: center; font-size: 0.9rem; font-weight: 500; }
+
+    .weight-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: #999;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #e0ddd6;
+    }
+
+    /* Error */
+    .error { font-size: 0.82rem; color: #b33; margin-bottom: 12px; display: none; }
+
+    /* Primary button */
+    .btn-primary {
+      width: 100%;
+      background: #25295B;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 15px 24px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover:not(:disabled) { background: #1c2049; }
+    .btn-primary:disabled { opacity: 0.55; cursor: default; }
+
+    /* Rate cards */
+    .rate-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #e0ddd6;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+    }
+    .rate-name { font-size: 0.9rem; font-weight: 500; }
+    .rate-meta { font-size: 0.75rem; color: #888; margin-top: 4px; }
+    .rate-price { font-size: 1.15rem; font-weight: 500; text-align: right; white-space: nowrap; margin-left: 16px; }
+    .rate-label { font-size: 0.7rem; color: #999; margin-top: 3px; }
+    .disclaimer { font-size: 0.72rem; color: #999; margin-top: 14px; line-height: 1.55; }
+
+    /* CTA */
+    .cta { margin-top: 48px; padding-top: 28px; border-top: 1px solid #e0ddd6; }
+    .btn-order {
+      display: inline-block;
+      background: #25295B;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 13px 30px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      letter-spacing: 0.02em;
+      transition: background 0.15s;
+    }
+    .btn-order:hover { background: #1c2049; }
+    .cta-note { font-size: 0.78rem; color: #888; margin-top: 12px; line-height: 1.55; }
+    .cta-note a { color: #25295B; }
+
+    @media (max-width: 500px) {
+      .field-row { grid-template-columns: 1fr; }
+      header { padding: 0 16px; }
+      main { padding-top: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">SL.OW Wholesale</div>
+
+  <header>
+    <img src="/logo.svg" alt="SL.OW" />
+    <nav>
+      <a href="https://slow.orderspace.com">Store</a>
+      <a href="https://slow.orderspace.com/shipping">Shipping</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Shipping Estimate</h1>
+    <p class="subtitle">Get a live DHL quote for your order before you place it.<br>Enter your delivery details and how many bags you're planning to order.</p>
+
+    <!-- Location -->
+    <div class="card">
+      <div class="section-label">Delivery Location</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="country">Country</label>
+          <select id="country" onchange="resetResults()">
+            <option value="NZ">New Zealand</option>
+            <option value="AU" selected>Australia</option>
+            <option value="GB">United Kingdom</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="JP">Japan</option>
+            <option value="SG">Singapore</option>
+            <option value="HK">Hong Kong SAR</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+            <option value="NL">Netherlands</option>
+            <option value="SE">Sweden</option>
+            <option value="DK">Denmark</option>
+            <option value="NO">Norway</option>
+            <option value="KR">South Korea</option>
+            <option value="TW">Taiwan</option>
+            <option value="AE">UAE</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="postal">Postal / ZIP code</label>
+          <input type="text" id="postal" placeholder="2000" oninput="resetResults()" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="city">City</label>
+        <input type="text" id="city" placeholder="e.g. Sydney" oninput="resetResults()" />
+      </div>
+    </div>
+
+    <!-- Order size -->
+    <div class="card">
+      <div class="section-label">Order Size</div>
+      <div class="bag-row">
+        <div>
+          <div class="bag-name">200g bags</div>
+          <div class="bag-sub">~210g per bag</div>
+        </div>
+        <div class="counter">
+          <button onclick="adjust('200g',-1)">−</button>
+          <span class="count" id="count-200g">0</span>
+          <button onclick="adjust('200g',1)">+</button>
+        </div>
+      </div>
+      <div class="bag-row">
+        <div>
+          <div class="bag-name">1kg bags</div>
+          <div class="bag-sub">~1060g per bag</div>
+        </div>
+        <div class="counter">
+          <button onclick="adjust('1kg',-1)">−</button>
+          <span class="count" id="count-1kg">0</span>
+          <button onclick="adjust('1kg',1)">+</button>
+        </div>
+      </div>
+      <div class="weight-row" id="weight-row" style="display:none">
+        <span id="bag-count-label"></span>
+        <span id="chargeable-label"></span>
+      </div>
+    </div>
+
+    <p class="error" id="error-msg"></p>
+
+    <button class="btn-primary" onclick="getEstimate()">Get shipping estimate</button>
+
+    <div id="results"></div>
+
+    <div class="cta">
+      <a href="https://slow.orderspace.com" class="btn-order">Place your order →</a>
+      <p class="cta-note">Questions about shipping? <a href="mailto:hello@slow.coffee">hello@slow.coffee</a></p>
+    </div>
+  </main>
+
+  <script>
+    const counts = { '200g': 0, '1kg': 0 }
+    const actual  = { '200g': 0.21, '1kg': 1.06 }
+    // Volumetric (cm³ / 5000): 200g ≈ 9×6×3 cm, 1kg ≈ 18×11×5 cm
+    const vol     = { '200g': 9*6*3/5000, '1kg': 18*11*5/5000 }
+
+    function adjust(size, d) {
+      counts[size] = Math.max(0, counts[size] + d)
+      document.getElementById('count-' + size).textContent = counts[size]
+      updateSummary()
+      resetResults()
+    }
+
+    function updateSummary() {
+      const total = counts['200g'] + counts['1kg']
+      const row = document.getElementById('weight-row')
+      if (total === 0) { row.style.display = 'none'; return }
+      const actualKg = counts['200g']*actual['200g'] + counts['1kg']*actual['1kg']
+      const volKg    = counts['200g']*vol['200g']    + counts['1kg']*vol['1kg']
+      const chargeable = Math.max(actualKg, volKg)
+      row.style.display = 'flex'
+      document.getElementById('bag-count-label').textContent = total + ' bag' + (total !== 1 ? 's' : '')
+      document.getElementById('chargeable-label').textContent = 'Chargeable weight: ' + chargeable.toFixed(2) + ' kg'
+    }
+
+    function chargeableKg() {
+      const actualKg = counts['200g']*actual['200g'] + counts['1kg']*actual['1kg']
+      const volKg    = counts['200g']*vol['200g']    + counts['1kg']*vol['1kg']
+      return Math.max(actualKg, volKg, 0.1)
+    }
+
+    function resetResults() {
+      document.getElementById('results').innerHTML = ''
+    }
+
+    async function getEstimate() {
+      const city   = document.getElementById('city').value.trim()
+      const postal = document.getElementById('postal').value.trim()
+      const country = document.getElementById('country').value
+      const errEl  = document.getElementById('error-msg')
+      const total  = counts['200g'] + counts['1kg']
+
+      errEl.style.display = 'none'
+      if (!city || !postal) { errEl.textContent = 'Please enter your city and postal code.'; errEl.style.display = 'block'; return }
+      if (total === 0) { errEl.textContent = 'Please add at least one bag.'; errEl.style.display = 'block'; return }
+
+      const btn = document.querySelector('.btn-primary')
+      btn.disabled = true
+      btn.textContent = 'Getting live rates…'
+
+      try {
+        const res = await fetch('/api/rates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ toCity: city, toPostalCode: postal, toCountry: country, weightKg: chargeableKg() })
+        })
+        const data = await res.json()
+        if (data.error) throw new Error(data.error)
+        renderRates(data.rates, total)
+      } catch (e) {
+        errEl.textContent = e.message || 'Could not fetch rates. Please try again.'
+        errEl.style.display = 'block'
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Get shipping estimate'
+      }
+    }
+
+    function renderRates(rates, totalBags) {
+      const container = document.getElementById('results')
+      if (!rates || rates.length === 0) {
+        container.innerHTML = '<div class="card" style="text-align:center;color:#888;font-size:0.875rem;padding:28px">No rates available for this destination — contact us directly.</div>'
+        return
+      }
+      let html = '<div class="card"><div class="section-label">DHL Shipping Options</div>'
+      rates.forEach(r => {
+        const eta = r.deliveryDate
+          ? new Date(r.deliveryDate).toLocaleDateString('en-NZ', { weekday: 'short', month: 'short', day: 'numeric' })
+          : '~' + r.transitDays + ' business day' + (r.transitDays !== 1 ? 's' : '')
+        const perBag = totalBags > 0 ? (r.totalPrice / totalBags).toFixed(2) : '—'
+        html += `<div class="rate-row">
+          <div>
+            <div class="rate-name">${r.productName}</div>
+            <div class="rate-meta">Est. arrival: ${eta} &nbsp;·&nbsp; ${r.currency} ${perBag} / bag</div>
+          </div>
+          <div>
+            <div class="rate-price">${r.currency} ${r.totalPrice.toFixed(2)}</div>
+            <div class="rate-label">total freight</div>
+          </div>
+        </div>`
+      })
+      html += '<p class="disclaimer">Indicative rates based on chargeable weight (actual vs. volumetric). Final cost confirmed at checkout. Local duties and import taxes are not included.</p>'
+      html += '</div>'
+      container.innerHTML = html
+    }
+  </script>
+</body>
+</html>
